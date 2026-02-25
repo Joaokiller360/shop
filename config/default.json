@@ -1,7 +1,8 @@
 {
   "shop": {
     "language": "es",
-    "currency": "USD"
+    "currency": "USD",
+    "trustProxy": true
   },
   "system": {
     "extensions": [

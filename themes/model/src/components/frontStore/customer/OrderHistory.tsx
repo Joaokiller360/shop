@@ -38,12 +38,15 @@ const ModalDetails = ({
               <p className='text-xl'><strong>{_('Number Order')}:</strong> #{order.orderNumber}</p>
               <p className='text-xl'><strong>{_('Status')}:</strong> {order.shipmentStatus?.name}</p>
             </div>
+            <div className='flex justify-between'>
+              <p className='text-xl'><strong>{_('Shipping Method')}:</strong> {order.shippingMethodName}</p>
+            </div>
 
             <div className='py-2 text-lg'>
               <p><strong>{_('Country')}:</strong> {order.billingAddress?.country?.name}</p>
               <p><strong>{_('City')}:</strong> {order.billingAddress?.city}</p>
               <p><strong>{_('Shipping Address')}:</strong> {order.shippingAddress?.address1}</p>
-              <p><strong>{_('Payment Method')}:</strong> {order.paymentMethod?.name}</p>
+              <p><strong>{_('Payment Method')}:</strong> {order.paymentMethodName}</p>
               <p><strong>{_('Telephone')}:</strong> {order.billingAddress?.telephone}</p>
               <p><strong>{_('Order Date')}:</strong> {order.createdAt.text}</p>
               <p><strong>{_('Total')}:</strong> ${order.grandTotal.value} {_('USD')}</p>

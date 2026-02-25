@@ -26,8 +26,12 @@ const ModalDetails = ({ open, onClose, order })=>{
     }, /*#__PURE__*/ React.createElement("strong", null, _('Number Order'), ":"), " #", order.orderNumber), /*#__PURE__*/ React.createElement("p", {
         className: "text-xl"
     }, /*#__PURE__*/ React.createElement("strong", null, _('Status'), ":"), " ", order.shipmentStatus?.name)), /*#__PURE__*/ React.createElement("div", {
+        className: "flex justify-between"
+    }, /*#__PURE__*/ React.createElement("p", {
+        className: "text-xl"
+    }, /*#__PURE__*/ React.createElement("strong", null, _('Shipping Method'), ":"), " ", order.shippingMethodName)), /*#__PURE__*/ React.createElement("div", {
         className: "py-2 text-lg"
-    }, /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Country'), ":"), " ", order.billingAddress?.country?.name), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('City'), ":"), " ", order.billingAddress?.city), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Shipping Address'), ":"), " ", order.shippingAddress?.address1), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Payment Method'), ":"), " ", order.paymentMethod?.name), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Telephone'), ":"), " ", order.billingAddress?.telephone), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Order Date'), ":"), " ", order.createdAt.text), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Total'), ":"), " $", order.grandTotal.value, " ", _('USD'))), /*#__PURE__*/ React.createElement("table", {
+    }, /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Country'), ":"), " ", order.billingAddress?.country?.name), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('City'), ":"), " ", order.billingAddress?.city), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Shipping Address'), ":"), " ", order.shippingAddress?.address1), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Payment Method'), ":"), " ", order.paymentMethodName), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Telephone'), ":"), " ", order.billingAddress?.telephone), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Order Date'), ":"), " ", order.createdAt.text), /*#__PURE__*/ React.createElement("p", null, /*#__PURE__*/ React.createElement("strong", null, _('Total'), ":"), " $", order.grandTotal.value, " ", _('USD'))), /*#__PURE__*/ React.createElement("table", {
         className: "table-auto w-full"
     }, /*#__PURE__*/ React.createElement("thead", {
         className: "bg-gray-400/50 rounded-t-lg"
@@ -119,3 +123,4 @@ export default function OrderHistory({ title }) {
         order: selectedOrder
     })));
 }
+
