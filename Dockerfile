@@ -29,7 +29,7 @@ RUN npm run build
 
 # =============================================
 # Etapa 2: Producción
-FROM node:20-alpine AS runner
+FROM node:20 AS runner
 
 # Instalar dependencias del sistema
 RUN apk add --no-cache libc6-compat
