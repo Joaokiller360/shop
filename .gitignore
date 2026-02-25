@@ -1,0 +1,15 @@
+node_modules
+.env
+.env.example
+dist
+build
+.logs
+uploads
+.cache
+# Ignorar solo node_modules y dist de extensiones
+extensions/*/node_modules
+extensions/*/dist
+
+
+# Ignorar extensión sample si no la usas
+extensions/sample/

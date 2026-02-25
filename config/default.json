@@ -1,0 +1,29 @@
+{
+  "shop": {
+    "language": "es",
+    "currency": "USD"
+  },
+  "system": {
+    "extensions": [
+      {
+        "name": "resend",
+        "resolve": "node_modules/@evershop/resend",
+        "enabled": true,
+        "priority": 10
+      }
+    ],
+    "theme": "model",
+    "notification_emails": {
+      "from": "JB Skylens <onboarding@resend.dev>",
+      "order_confirmation": {
+        "enabled": true
+      },
+      "customer_welcome": {
+        "enabled": true
+      },
+      "customer_password_reset": {
+        "enabled": true
+      }
+    }
+  }
+}

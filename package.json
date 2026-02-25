@@ -1,0 +1,37 @@
+{
+  "name": "shop-jbskylens",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "evershop install",
+    "dev": "evershop dev",
+    "seed": "evershop seed",
+    "theme:create": "evershop theme:create",
+    "theme:build": "evershop theme:build",
+    "theme:active": "evershop theme:active",
+    "theme:twizz": "evershop theme:twizz",
+    "theme:delete": "evershop theme:delete",
+
+
+    "build": "evershop build --skip-minify",
+    "start": "evershop start",
+    "user:create": "evershop user:create",
+    "user:changePassword": "evershop user:changePassword"
+  },
+  "dependencies": {
+    "@evershop/evershop": "2.1.1",
+    "@evershop/resend": "^2.1.2"
+  },
+  "devDependencies": {
+    "@parcel/watcher": "2.5.6",
+    "@types/config": "3.3.5",
+    "@types/express": "5.0.6",
+    "@types/node": "25.3.0",
+    "@types/pg": "8.16.0",
+    "@types/react": "19.2.14",
+    "daisyui": "^5.5.19",
+    "execa": "9.6.1",
+    "typescript": "5.9.3"
+  }
+}

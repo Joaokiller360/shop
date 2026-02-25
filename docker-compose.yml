@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Aplicación EverShop
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shop-jbskylens-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-evershop}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+    volumes:
+      - media-data:/app/media
+
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: shop-jbskylens-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_NAME:-evershop}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-evershop}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shop-network
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+networks:
+  shop-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  media-data:
