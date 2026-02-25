@@ -37,14 +37,16 @@ FROM node:20 AS runner
 
 # Instalar dependencias del sistema (Debian/Ubuntu)
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends libc6-dev && \
+  apt-get install -y --no-install-recommends libc6-dev curl && \
   rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Crear usuario no-root para seguridad
+# Crear usuario no-root para seguridad con home directory
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 evershop
+    adduser --system --uid 1001 --home /home/evershop evershop && \
+    mkdir -p /home/evershop && \
+    chown -R evershop:nodejs /home/evershop
 
 # Variables de entorno por defecto
 ENV NODE_ENV=production
@@ -76,8 +78,8 @@ USER evershop
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
+  CMD curl -f http://localhost:3000/ || exit 1
 
 # Comando de inicio
 CMD ["npm", "start"]
