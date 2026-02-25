@@ -2,8 +2,7 @@
   "shop": {
     "language": "es",
     "currency": "USD",
-    "trustProxy": true,
-    "homeUrl": "${SHOP_URL}"
+    "trustProxy": true
   },
   "system": {
     "extensions": [

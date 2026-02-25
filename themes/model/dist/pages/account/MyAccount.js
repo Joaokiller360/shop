@@ -9,7 +9,7 @@ export default function MyAccount() {
     const { customer: account } = useCustomer();
     return /*#__PURE__*/ React.createElement("div", null, /*#__PURE__*/ React.createElement("h1", {
         className: "text-center"
-    }, _(`My Account`), " ", /*#__PURE__*/ React.createElement("span", {
+    }, _('My Account'), " ", /*#__PURE__*/ React.createElement("span", {
         className: "uppercase"
     }, account?.fullName)), /*#__PURE__*/ React.createElement("div", {
         className: "page-width mt-7 grid grid-cols-1 md:grid-cols-3 gap-7"

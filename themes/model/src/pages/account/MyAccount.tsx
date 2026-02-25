@@ -14,7 +14,7 @@ export default function MyAccount() {
 
   return (
     <div>
-      <h1 className="text-center">{_(`My Account`)} <span className='uppercase'>{account?.fullName}</span></h1>
+      <h1 className="text-center">{_('My Account')} <span className='uppercase'>{account?.fullName}</span></h1>
       <div className="page-width mt-7 grid grid-cols-1 md:grid-cols-3 gap-7">
         <div className="col-span-1 md:col-span-2">
           <OrderHistory title={_('Recent Orders')} />
