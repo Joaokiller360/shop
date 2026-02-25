@@ -3,7 +3,7 @@
 # =============================================
 
 # Etapa 1: Construcción
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 # Instalar dependencias del sistema necesarias
 RUN apk add --no-cache libc6-compat python3 make g++
