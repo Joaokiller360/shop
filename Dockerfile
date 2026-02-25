@@ -3,10 +3,13 @@
 # =============================================
 
 # Etapa 1: Construcción
+
 FROM node:20 AS builder
 
-# Instalar dependencias del sistema necesarias
-RUN apk add --no-cache libc6-compat python3 make g++
+# Instalar dependencias del sistema necesarias (Debian/Ubuntu)
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends libc6-dev python3 make g++ && \
+  rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -29,10 +32,13 @@ RUN npm run build
 
 # =============================================
 # Etapa 2: Producción
+
 FROM node:20 AS runner
 
-# Instalar dependencias del sistema
-RUN apk add --no-cache libc6-compat
+# Instalar dependencias del sistema (Debian/Ubuntu)
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends libc6-dev && \
+  rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
