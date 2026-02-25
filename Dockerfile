@@ -51,6 +51,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Variables de entorno por defecto
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV TRUST_PROXY=true
 
 # Copiar archivos de dependencias
 COPY --from=builder /app/package.json ./
