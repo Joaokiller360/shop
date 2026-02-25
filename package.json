@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@evershop/evershop": "2.1.1",
-    "@evershop/resend": "^2.1.2"
+    "@evershop/resend": "^2.1.2",
+    "@parcel/watcher": "2.5.6"
   },
   "devDependencies": {
-    "@parcel/watcher": "2.5.6",
     "@types/config": "3.3.5",
     "@types/express": "5.0.6",
     "@types/node": "25.3.0",
