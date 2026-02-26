@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmación de Pedido</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; color: #222; }
+    .container { background: #fff; padding: 32px; margin: 24px auto; border-radius: 8px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    h1 { color: #2d7aee; }
+    .order-details { margin: 24px 0; }
+    .footer { margin-top: 32px; font-size: 13px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>¡Gracias por tu compra, {{customerName}}!</h1>
+    <p>Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+    <div class="order-details">
+      <h2>Detalles del pedido</h2>
+      <ul>
+        {{#each items}}
+        <li>{{name}} x {{quantity}} - {{price}}</li>
+        {{/each}}
+      </ul>
+      <p><strong>Total:</strong> {{total}}</p>
+    </div>
+    <p>Te avisaremos cuando tu pedido haya sido enviado.</p>
+    <div class="footer">
+      Si tienes dudas, responde a este correo.<br>
+      &copy; {{year}} Tu Tienda.
+    </div>
+  </div>
+</body>
+</html>

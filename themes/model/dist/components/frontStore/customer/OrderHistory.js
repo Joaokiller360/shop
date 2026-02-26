@@ -25,7 +25,7 @@ const ModalDetails = ({ open, onClose, order })=>{
         className: "text-xl"
     }, /*#__PURE__*/ React.createElement("strong", null, _('Number Order'), ":"), " #", order.orderNumber), /*#__PURE__*/ React.createElement("p", {
         className: "text-xl"
-    }, /*#__PURE__*/ React.createElement("strong", null, _('Status'), ":"), " ", order.shipmentStatus?.name)), /*#__PURE__*/ React.createElement("div", {
+    }, /*#__PURE__*/ React.createElement("strong", null, _('Status'), ":"), " ", order.shipmentStatus.name)), /*#__PURE__*/ React.createElement("div", {
         className: "flex justify-between"
     }, /*#__PURE__*/ React.createElement("p", {
         className: "text-xl"

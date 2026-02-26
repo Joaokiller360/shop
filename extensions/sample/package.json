@@ -1,0 +1,29 @@
+{
+  "name": "sample-evershop-extension",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "setup": "evershop install",
+    "start": "evershop start",
+    "build": "evershop build",
+    "dev": "evershop dev",
+    "seed": "evershop seed",
+    "theme:create": "evershop theme:create",
+    "theme:build": "evershop theme:build",
+    "theme:active": "evershop theme:active",
+    "theme:twizz": "evershop theme:twizz",
+    "theme:delete": "evershop theme:delete",
+    "user:create": "evershop user:create"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

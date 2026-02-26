@@ -36,7 +36,7 @@ const ModalDetails = ({
 
             <div className='flex justify-between'>
               <p className='text-xl'><strong>{_('Number Order')}:</strong> #{order.orderNumber}</p>
-              <p className='text-xl'><strong>{_('Status')}:</strong> {order.shipmentStatus?.name}</p>
+              <p className='text-xl'><strong>{_('Status')}:</strong> {order.shipmentStatus.name}</p>
             </div>
             <div className='flex justify-between'>
               <p className='text-xl'><strong>{_('Shipping Method')}:</strong> {order.shippingMethodName}</p>

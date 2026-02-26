@@ -27,6 +27,10 @@ RUN \
 # Copiar todo el código fuente
 COPY . .
 
+# Argumento de build para SHOP_URL
+ARG SHOP_URL
+ENV SHOP_URL=${SHOP_URL}
+
 # Construir la aplicación
 RUN npm run build
 

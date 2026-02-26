@@ -7,11 +7,19 @@ import React from 'react';
 import { useCustomer } from '@components/frontStore/customer/CustomerContext.jsx';
 export default function MyAccount() {
     const { customer: account } = useCustomer();
-    return /*#__PURE__*/ React.createElement("div", null, /*#__PURE__*/ React.createElement("h1", {
+    return /*#__PURE__*/ React.createElement("div", null, /*#__PURE__*/ React.createElement("div", {
+        className: "items-center justify-center flex flex-col"
+    }, /*#__PURE__*/ React.createElement("img", {
+        width: "100",
+        height: "100",
+        className: "rounded-full items-center",
+        src: "https://res.cloudinary.com/dzlavqhid/image/upload/v1768936317/logo.png",
+        alt: account?.fullName
+    }), /*#__PURE__*/ React.createElement("h1", {
         className: "text-center"
-    }, _('My Account'), " ", /*#__PURE__*/ React.createElement("span", {
+    }, _('Welcome back'), ": ", /*#__PURE__*/ React.createElement("span", {
         className: "uppercase"
-    }, account?.fullName)), /*#__PURE__*/ React.createElement("div", {
+    }, account?.fullName))), /*#__PURE__*/ React.createElement("div", {
         className: "page-width mt-7 grid grid-cols-1 md:grid-cols-3 gap-7"
     }, /*#__PURE__*/ React.createElement("div", {
         className: "col-span-1 md:col-span-2"
