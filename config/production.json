@@ -17,10 +17,10 @@
     "notification_emails": {
       "from": "JB Skylens <onboarding@resend.dev>",
       "order_confirmation": {
-        "enabled": true
+        "enabled": false
       },
       "customer_welcome": {
-        "enabled": true
+        "enabled": false
       },
       "customer_password_reset": {
         "enabled": true

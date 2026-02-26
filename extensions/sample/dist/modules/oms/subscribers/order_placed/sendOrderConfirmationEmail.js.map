@@ -1,0 +1,1 @@
+{"version":3,"file":"sendOrderConfirmationEmail.js","sourceRoot":"","sources":["../../../../../src/modules/oms/subscribers/order_placed/sendOrderConfirmationEmail.js"],"names":[],"mappings":"AAAA,8DAA8D;AAC9D,0DAA0D;AAC1D,gHAAgH;AAEhH,MAAM,CAAC,OAAO,CAAC,KAAK,UAAU,0BAA0B,CAAC,IAAI;IAC3D,uDAAuD;IACvD,OAAO,CAAC,GAAG,CAAC,uEAAuE,CAAC,CAAC;AACvF,CAAC"}
