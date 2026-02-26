@@ -37,8 +37,16 @@ export default async function sendOrderConfirmation(eventData) {
 
     debug('Custom order confirmation email triggered');
 
-    // Leer la plantilla personalizada
-    const templatePath = path.resolve(import.meta.dirname, '../../../../../themes/model/src/emails/OrderConfirmation.html');
+    // Leer la plantilla personalizada - usar process.cwd() para compatibilidad con producción
+    const templatePath = path.resolve(process.cwd(), 'themes/model/src/emails/OrderConfirmation.html');
+    console.log('📧 Template path:', templatePath);
+    
+    if (!fs.existsSync(templatePath)) {
+      console.error('❌ Template not found at:', templatePath);
+      error('Template not found');
+      return;
+    }
+    
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Reemplazar variables
