@@ -1,1 +1,1 @@
-export default function sendOrderConfirmationEmail(data: any): Promise<void>;
+export default function sendOrderConfirmationEmail(eventData: any): Promise<void>;
