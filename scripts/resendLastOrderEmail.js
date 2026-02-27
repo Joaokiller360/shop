@@ -36,7 +36,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
          style="display:block; margin:0 auto; border-radius:50%;" />
     
     <h1 style="color:#1B4B2E; margin-top:15px;">
-      ¡Gracias por tu compra, <br/>{{customerName}}!
+      {{welcomeClient}}
     </h1>
   </div>
   </div>
@@ -44,7 +44,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
   <!-- Contenedor -->
   <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
 
-    <p style="color:#1B4B2E; margin-top:15px;">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+    <p style="color:#1B4B2E; font-size: 1.5rem">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
 
     <div style="margin:24px 0;">
       <h2 style="color:#333; border-bottom:2px solid #eee; padding-bottom:10px;">
@@ -192,7 +192,12 @@ async function resendLastOrderEmail() {
     
     // Construir template
     let template = EMAIL_TEMPLATE;
+    const hasName = !!order.customer_full_name && order.customer_full_name.trim() !== '';
+    const welcomeText = hasName
+      ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!`
+      : '¡Gracias por tu compra!';
     template = template.replace(/{{customerName}}/g, order.customer_full_name || 'Cliente');
+    template = template.replace(/{{welcomeClient}}/g, welcomeText);
     template = template.replace(/{{orderId}}/g, order.order_number || '');
     template = template.replace(/{{total}}/g, `$${formatPrice(order.grand_total)}`);
     template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
@@ -203,7 +208,7 @@ async function resendLastOrderEmail() {
     
     console.log('\n📧 Enviando email...');
     const result = await resend.emails.send({
-      from: 'JB Skylens <onboarding@resend.dev>',
+      from: 'JB Skylens <pedidos@joaobarres.dev>',
       to: order.customer_email,
       subject: `Confirmación de pedido #${order.order_number}`,
       html: template

@@ -24,7 +24,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
          style="display:block; margin:0 auto; border-radius:50%;" />
     
     <h1 style="color:#1B4B2E; margin-top:15px;">
-      ¡Gracias por tu compra, <br/>{{customerName}}!
+      {{welcomeClient}}
     </h1>
   </div>
   </div>
@@ -32,7 +32,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
   <!-- Contenedor -->
   <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
 
-    <p style="color:#1B4B2E; margin-top:15px;">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+    <p style="color:#1B4B2E; font-size: 1.5rem">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
 
     <div style="margin:24px 0;">
       <h2 style="color:#333; border-bottom:2px solid #eee; padding-bottom:10px;">
@@ -153,16 +153,23 @@ export default async function sendOrderConfirmation(eventData) {
     };
 
     // Reemplazar variables
-    const customerName = order.customer_full_name || 'Cliente';
+    const welcomeClient = order.customer_full_name ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!` : '¡Gracias por tu compra!';
+    const customerName = order.customer_full_name || '';
     const orderNumber = order.order_number || '';
     const grandTotal = formatPrice(order.grand_total);
     const customerEmail = order.customer_email || '';
 
     const SHOP_URL = process.env.SHOP_URL || 'http://shop.joaobarres.dev';
 
-    template = template.replace(/{{customerName}}/g, customerName);
-    template = template.replace(/{{orderId}}/g, orderNumber);
-    template = template.replace(/{{total}}/g, `$${grandTotal}`);
+    const hasName = !!order.customer_full_name && order.customer_full_name.trim() !== '';
+    const welcomeText = hasName
+      ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!`
+      : '¡Gracias por tu compra!';
+    
+    template = template.replace(/{{customerName}}/g, order.customer_full_name || 'Cliente');
+    template = template.replace(/{{welcomeClient}}/g, welcomeText);
+    template = template.replace(/{{orderId}}/g, order.order_number || '');
+    template = template.replace(/{{total}}/g, `$${formatPrice(order.grand_total)}`);
     template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
 
     // Render items con imagen, nombre, descripción, cantidad y precios

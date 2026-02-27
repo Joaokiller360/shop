@@ -21,7 +21,7 @@
     ],
     "theme": "model",
     "notification_emails": {
-      "from": "JB Skylens <onboarding@resend.dev>",
+      "from": "JB Skylens <pedidos@joaobarres.dev>",
       "order_confirmation": {
         "enabled": false
       },
