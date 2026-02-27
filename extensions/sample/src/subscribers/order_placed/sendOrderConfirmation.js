@@ -123,11 +123,21 @@ export default async function sendOrderConfirmation(eventData) {
     // Render items con imagen, nombre, descripción, cantidad y precios
     const itemsHtml = items.map(item => {
       // Construir URL de la imagen
-      let thumbnail = 'https://via.placeholder.com/80x80?text=Producto';
+      let thumbnail = `${baseUrl}/placeholder.png`; // Imagen por defecto
       if (item.product_thumbnail) {
-        thumbnail = item.product_thumbnail.startsWith('http') 
-          ? item.product_thumbnail 
-          : `${baseUrl}${item.product_thumbnail}`;
+        if (item.product_thumbnail.startsWith('http')) {
+          thumbnail = item.product_thumbnail;
+        } else {
+          // Asegurar que la ruta comience con /assets si no lo tiene
+          let imagePath = item.product_thumbnail;
+          if (!imagePath.startsWith('/')) {
+            imagePath = '/' + imagePath;
+          }
+          if (!imagePath.startsWith('/assets')) {
+            imagePath = '/assets' + imagePath;
+          }
+          thumbnail = `${baseUrl}${imagePath}`;
+        }
       }
       
       const name = item.product_name || 'Producto';
