@@ -96,6 +96,40 @@ export default async function sendOrderConfirmation(eventData) {
       .execute(pool);
     
     console.log('📧 Items found:', items.length);
+    
+    // Obtener las imágenes de los productos (query separada)
+    const productIds = items.map(item => item.product_id);
+    let productImages = [];
+    if (productIds.length > 0) {
+      productImages = await select()
+        .from('product_image')
+        .where('product_image_product_id', 'IN', productIds)
+        .execute(pool);
+    }
+    
+    // Crear un mapa de product_id -> imagen
+    const imageMap = {};
+    productImages.forEach(img => {
+      // Preferir la imagen marcada como main, o la primera disponible
+      // El campo es origin_image (no image)
+      if (!imageMap[img.product_image_product_id] || img.is_main) {
+        imageMap[img.product_image_product_id] = img.origin_image;
+      }
+    });
+    
+    // Debug: ver las imágenes encontradas
+    console.log('📧 Product IDs:', productIds);
+    console.log('📧 Product images found:', productImages.length);
+    if (productImages.length > 0) {
+      console.log('📧 First image object:', JSON.stringify(productImages[0]));
+    }
+    console.log('📧 Image map:', JSON.stringify(imageMap));
+    
+    // Debug: ver todos los campos del primer item
+    if (items.length > 0) {
+      console.log('📧 First item keys:', Object.keys(items[0]));
+      console.log('📧 First item thumbnail:', items[0].thumbnail);
+    }
 
     // Obtener la URL base para las imágenes
     const baseUrl = getBaseUrl();
@@ -125,19 +159,27 @@ export default async function sendOrderConfirmation(eventData) {
     // Render items con imagen, nombre, descripción, cantidad y precios
     const itemsHtml = items.map(item => {
       // Construir URL de la imagen usando el endpoint /images de Next.js
-      let thumbnail = `${baseUrl}/placeholder.png`; // Imagen por defecto
-      if (item.product_thumbnail) {
-        if (item.product_thumbnail.startsWith('http')) {
-          thumbnail = item.product_thumbnail;
+      // Intentar obtener la imagen de: thumbnail (order_item), imageMap, o placeholder
+      let thumbnail = `${SHOP_URL}/placeholder.png`; // Imagen por defecto
+      
+      // Buscar la imagen: primero en order_item.thumbnail, luego en el mapa de imágenes
+      const imageSrc = item.thumbnail || imageMap[item.product_id];
+      console.log('📷 Image source for product', item.product_id, ':', imageSrc); // Debug
+      
+      if (imageSrc) {
+        if (imageSrc.startsWith('http')) {
+          thumbnail = imageSrc;
         } else {
-          // Construir la ruta de la imagen
-          let imagePath = item.product_thumbnail;
+          // La imagen de product_image ya tiene /assets como prefijo
+          // Solo necesitamos codificar la ruta para el endpoint /images
+          let imagePath = imageSrc;
           if (!imagePath.startsWith('/')) {
             imagePath = '/' + imagePath;
           }
-          // Usar el endpoint /images con el parámetro src codificado
-          const encodedPath = encodeURIComponent(`/assets${imagePath}`);
-          thumbnail = `${baseUrl}/images?src=${encodedPath}&w=80&q=75`;
+          // Si ya tiene /assets, usarlo directamente; si no, agregarlo
+          const fullPath = imagePath.startsWith('/assets') ? imagePath : `/assets${imagePath}`;
+          const encodedPath = encodeURIComponent(fullPath);
+          thumbnail = `${SHOP_URL}/images?src=${encodedPath}&w=80&q=75`;
         }
       }
       

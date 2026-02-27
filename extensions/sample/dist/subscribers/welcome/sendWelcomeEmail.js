@@ -26,10 +26,13 @@ export default async function sendWelcomeEmail(eventData) {
                 body: template
             });
             debug(`Custom welcome email sent to ${customerEmail}`);
-        } else {
+        }
+        else {
             error('Email service not available or customer email missing');
         }
-    } catch (err) {
+    }
+    catch (err) {
         error(`Error sending custom welcome email: ${err.message}`);
     }
 }
+//# sourceMappingURL=sendWelcomeEmail.js.map

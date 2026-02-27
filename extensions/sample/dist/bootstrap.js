@@ -4,11 +4,11 @@ import { hookAfter } from '@evershop/evershop/lib/util/hookable';
 import { emit } from '@evershop/evershop/lib/event';
 import { pool } from '@evershop/evershop/lib/postgres';
 import { select } from '@evershop/postgres-query-builder';
-export default function() {
+export default function () {
     // Registrar cronjob
     registerJob({
         name: 'sampleJob',
-        schedule: '*/1 * * * *',
+        schedule: '*/1 * * * *', // Runs every minute
         resolve: path.resolve(import.meta.dirname, 'crons', 'everyMinute.js'),
         enabled: true
     });
@@ -18,18 +18,23 @@ export default function() {
         console.log('🔥 hookAfter createOrderFunc - orderResult:', orderResult);
         try {
             // El resultado del insert solo tiene insertId, necesitamos cargar la orden completa
-            const orderId = orderResult?.insertId;
+            const orderId = orderResult === null || orderResult === void 0 ? void 0 : orderResult.insertId;
             if (orderId) {
                 // Cargar la orden completa de la base de datos
-                const order = await select().from('order').where('order_id', '=', orderId).load(pool);
+                const order = await select()
+                    .from('order')
+                    .where('order_id', '=', orderId)
+                    .load(pool);
                 if (order) {
                     console.log('🔥 Emitiendo order_placed para orden:', order.order_number);
                     await emit('order_placed', order);
                     console.log('✅ Evento order_placed emitido correctamente');
                 }
             }
-        } catch (err) {
+        }
+        catch (err) {
             console.error('❌ Error emitiendo order_placed:', err.message);
         }
     });
 }
+//# sourceMappingURL=bootstrap.js.map
