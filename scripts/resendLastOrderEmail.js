@@ -26,7 +26,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <title>Confirmación de Pedido</title>
 </head>
-<body style="font-family: Arial, sans-serif; background:#f7f7f7; color:#222; margin:0; padding:0;">
+<body style="font-family: Arial, sans-serif; background:#1B4B2E; color:#222; margin:0; padding:0;">
 <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
   <!-- Header centrado -->
   <div style="text-align:center; padding:30px 0;">
@@ -75,16 +75,21 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
         </tfoot>
       </table>
     </div>
+  </div>
 
+  <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+    {{SHIPPING_INFO}}
+  </div>
+
+  <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
     <p style="text-align:center; color:#666;">
       Te avisaremos cuando tu pedido haya sido enviado.
     </p>
 
     <div style="margin-top:32px; font-size:13px; color:#888; text-align:center;">
       Si tienes dudas, responde a este correo.<br>
-      &copy; {{year}} Tu Tienda.
+      &copy; {{year}} {{shopName}}.
     </div>
-
   </div>
 </body>
 </html>`;
@@ -108,6 +113,19 @@ async function resendLastOrderEmail() {
     const order = orderResult.rows[0];
     console.log('📦 Último pedido:', order.order_number);
     console.log('📧 Email del cliente:', order.customer_email);
+    
+    // Obtener la dirección de envío
+    let shippingAddress = null;
+    if (order.shipping_address_id) {
+      const addressResult = await pool.query(`
+        SELECT * FROM order_address 
+        WHERE order_address_id = $1
+      `, [order.shipping_address_id]);
+      if (addressResult.rows.length > 0) {
+        shippingAddress = addressResult.rows[0];
+        console.log('📍 Dirección de envío:', JSON.stringify(shippingAddress));
+      }
+    }
     
     // Obtener los items del pedido
     const itemsResult = await pool.query(`
@@ -180,7 +198,7 @@ async function resendLastOrderEmail() {
       
       return `<tr>
         <td><img src="${thumbnail}" alt="${name}" style="width: 80px; height: 80px; object-fit: cover;"></td>
-        <td>
+        <td style="padding-left:12px;">
           <div style="font-weight: 600; color: #333;">${name}</div>
         </td>
         <td style="text-align: center;">${quantity}</td>
@@ -192,6 +210,7 @@ async function resendLastOrderEmail() {
     
     // Construir template
     let template = EMAIL_TEMPLATE;
+    const SHOP_NAME = process.env.SHOP_NAME || 'JB Skylens';
     const hasName = !!order.customer_full_name && order.customer_full_name.trim() !== '';
     const welcomeText = hasName
       ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!`
@@ -201,7 +220,36 @@ async function resendLastOrderEmail() {
     template = template.replace(/{{orderId}}/g, order.order_number || '');
     template = template.replace(/{{total}}/g, `$${formatPrice(order.grand_total)}`);
     template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
+    template = template.replace(/{{shopName}}/g, SHOP_NAME);
     template = template.replace('{{ITEMS_HTML}}', itemsHtml);
+    
+    // Construir HTML de datos de envío
+    let shippingInfoHtml = '';
+    if (shippingAddress || order.shipping_method_name) {
+      shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+          <h3 style="color: #1B4B2E; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            📦 Datos de envío
+          </h3>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            ${order.shipping_method_name ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Método de Envío:</strong> ${order.shipping_method_name}</li>` : ''}
+            ${shippingAddress?.country ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>País:</strong> ${shippingAddress.country}</li>` : ''}
+            ${shippingAddress?.province ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Provincia:</strong> ${shippingAddress.province}</li>` : ''}
+            ${shippingAddress?.city ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Ciudad:</strong> ${shippingAddress.city}</li>` : ''}
+            ${shippingAddress?.address_1 ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Dirección:</strong> ${shippingAddress.address_1}${shippingAddress.address_2 ? ', ' + shippingAddress.address_2 : ''}</li>` : ''}
+            ${shippingAddress?.postcode ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Código Postal:</strong> ${shippingAddress.postcode}</li>` : ''}
+            ${shippingAddress?.telephone ? `<li style="padding: 8px 0;"><strong>Teléfono:</strong> ${shippingAddress.telephone}</li>` : ''}
+          </ul>
+        </div>
+      `;
+    } else if (order.no_shipping_required) {
+      shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px; text-align: center;">
+          <p style="color: #666; margin: 0;">📍 Este pedido no requiere envío físico</p>
+        </div>
+      `;
+    }
+    template = template.replace('{{SHIPPING_INFO}}', shippingInfoHtml);
     
     // Enviar email con Resend
     const resend = new Resend(process.env.RESEND_API_KEY);

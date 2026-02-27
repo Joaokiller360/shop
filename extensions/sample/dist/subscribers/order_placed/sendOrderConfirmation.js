@@ -1,5 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import { getValue } from '@evershop/evershop/lib/util/registry';
 import { getConfig } from '@evershop/evershop/lib/util/getConfig';
+import { debug, error } from '@evershop/evershop/lib/log';
 import { pool } from '@evershop/evershop/lib/postgres';
 import { select } from '@evershop/postgres-query-builder';
 import { getBaseUrl } from '@evershop/evershop/lib/util/getBaseUrl';
@@ -20,7 +23,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
          style="display:block; margin:0 auto; border-radius:50%;" />
     
     <h1 style="color:#1B4B2E; margin-top:15px;">
-      ¡Gracias por tu compra, <br/>{{customerName}}!
+      {{welcomeClient}}
     </h1>
   </div>
   </div>
@@ -28,7 +31,7 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
   <!-- Contenedor -->
   <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
 
-    <p style="color:#1B4B2E; margin-top:15px;">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+    <p style="color:#1B4B2E; font-size: 1.5rem">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
 
     <div style="margin:24px 0;">
       <h2 style="color:#333; border-bottom:2px solid #eee; padding-bottom:10px;">
@@ -60,13 +63,15 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
       </table>
     </div>
 
+    {{SHIPPING_INFO}}
+
     <p style="text-align:center; color:#666;">
       Te avisaremos cuando tu pedido haya sido enviado.
     </p>
 
     <div style="margin-top:32px; font-size:13px; color:#888; text-align:center;">
       Si tienes dudas, responde a este correo.<br>
-      &copy; {{year}} Tu Tienda.
+      &copy; {{year}} {{shopName}}.
     </div>
 
   </div>
@@ -79,24 +84,44 @@ export default async function sendOrderConfirmation(eventData) {
         const orderId = eventData.order_id;
         console.log('📧 Processing order_id:', orderId);
         // Obtener la orden completa de la base de datos
-        const order = await select().from('order').where('order_id', '=', orderId).load(pool);
+        const order = await select()
+            .from('order')
+            .where('order_id', '=', orderId)
+            .load(pool);
         if (!order) {
             console.error('❌ Order not found:', orderId);
             return;
         }
         console.log('📧 Order found:', order.order_number);
+        // Obtener la dirección de envío
+        let shippingAddress = null;
+        if (order.shipping_address_id) {
+            shippingAddress = await select()
+                .from('order_address')
+                .where('order_address_id', '=', order.shipping_address_id)
+                .load(pool);
+            if (shippingAddress) {
+                console.log('📍 Dirección de envío:', JSON.stringify(shippingAddress));
+            }
+        }
         // Obtener los items de la orden
-        const items = await select().from('order_item').where('order_item_order_id', '=', orderId).execute(pool);
+        const items = await select()
+            .from('order_item')
+            .where('order_item_order_id', '=', orderId)
+            .execute(pool);
         console.log('📧 Items found:', items.length);
         // Obtener las imágenes de los productos (query separada)
-        const productIds = items.map((item)=>item.product_id);
+        const productIds = items.map(item => item.product_id);
         let productImages = [];
         if (productIds.length > 0) {
-            productImages = await select().from('product_image').where('product_image_product_id', 'IN', productIds).execute(pool);
+            productImages = await select()
+                .from('product_image')
+                .where('product_image_product_id', 'IN', productIds)
+                .execute(pool);
         }
         // Crear un mapa de product_id -> imagen
         const imageMap = {};
-        productImages.forEach((img)=>{
+        productImages.forEach(img => {
             // Preferir la imagen marcada como main, o la primera disponible
             // El campo es origin_image (no image)
             if (!imageMap[img.product_image_product_id] || img.is_main) {
@@ -120,22 +145,30 @@ export default async function sendOrderConfirmation(eventData) {
         // Usar plantilla embebida
         let template = EMAIL_TEMPLATE;
         // Función para formatear precios con 2 decimales
-        const formatPrice = (price)=>{
+        const formatPrice = (price) => {
             const num = parseFloat(price) || 0;
             return num.toFixed(2);
         };
         // Reemplazar variables
-        const customerName = order.customer_full_name || 'Cliente';
+        const welcomeClient = order.customer_full_name ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!` : '¡Gracias por tu compra!';
+        const customerName = order.customer_full_name || '';
         const orderNumber = order.order_number || '';
         const grandTotal = formatPrice(order.grand_total);
         const customerEmail = order.customer_email || '';
         const SHOP_URL = process.env.SHOP_URL || 'http://shop.joaobarres.dev';
-        template = template.replace(/{{customerName}}/g, customerName);
-        template = template.replace(/{{orderId}}/g, orderNumber);
-        template = template.replace(/{{total}}/g, `$${grandTotal}`);
+        const SHOP_NAME = process.env.SHOP_NAME || 'JB Skylens';
+        const hasName = !!order.customer_full_name && order.customer_full_name.trim() !== '';
+        const welcomeText = hasName
+            ? `¡Gracias por tu compra, <br/>${order.customer_full_name}!`
+            : '¡Gracias por tu compra!';
+        template = template.replace(/{{customerName}}/g, order.customer_full_name || 'Cliente');
+        template = template.replace(/{{welcomeClient}}/g, welcomeText);
+        template = template.replace(/{{orderId}}/g, order.order_number || '');
+        template = template.replace(/{{total}}/g, `$${formatPrice(order.grand_total)}`);
         template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
+        template = template.replace(/{{shopName}}/g, SHOP_NAME);
         // Render items con imagen, nombre, descripción, cantidad y precios
-        const itemsHtml = items.map((item)=>{
+        const itemsHtml = items.map(item => {
             // Construir URL de la imagen usando el endpoint /images de Next.js
             // Intentar obtener la imagen de: thumbnail (order_item), imageMap, o placeholder
             let thumbnail = `${SHOP_URL}/placeholder.png`; // Imagen por defecto
@@ -145,7 +178,8 @@ export default async function sendOrderConfirmation(eventData) {
             if (imageSrc) {
                 if (imageSrc.startsWith('http')) {
                     thumbnail = imageSrc;
-                } else {
+                }
+                else {
                     // La imagen de product_image ya tiene /assets como prefijo
                     // Solo necesitamos codificar la ruta para el endpoint /images
                     let imagePath = imageSrc;
@@ -159,7 +193,9 @@ export default async function sendOrderConfirmation(eventData) {
                 }
             }
             const name = item.product_name || 'Producto';
-            const description = item.product_custom_options ? JSON.parse(item.product_custom_options).map((opt)=>`${opt.option_name}: ${opt.value_text}`).join(', ') : '';
+            const description = item.product_custom_options
+                ? JSON.parse(item.product_custom_options).map(opt => `${opt.option_name}: ${opt.value_text}`).join(', ')
+                : '';
             const quantity = item.qty || 1;
             // Precios (formateados con 2 decimales)
             const priceInclTax = formatPrice(item.final_price_incl_tax || item.final_price || 0);
@@ -178,10 +214,38 @@ export default async function sendOrderConfirmation(eventData) {
       </tr>`;
         }).join('\n');
         template = template.replace('{{ITEMS_HTML}}', itemsHtml || '<tr><td colspan="6">Ver detalles en tu cuenta</td></tr>');
+        // Construir HTML de datos de envío
+        let shippingInfoHtml = '';
+        if (shippingAddress || order.shipping_method_name) {
+            shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+          <h3 style="color: #1B4B2E; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            📦 Datos de envío
+          </h3>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            ${order.shipping_method_name ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Método de Envío:</strong> ${order.shipping_method_name}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.country) ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>País:</strong> ${shippingAddress.country}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.province) ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Provincia:</strong> ${shippingAddress.province}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.city) ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Ciudad:</strong> ${shippingAddress.city}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.address_1) ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Dirección:</strong> ${shippingAddress.address_1}${shippingAddress.address_2 ? ', ' + shippingAddress.address_2 : ''}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.postcode) ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Código Postal:</strong> ${shippingAddress.postcode}</li>` : ''}
+            ${(shippingAddress === null || shippingAddress === void 0 ? void 0 : shippingAddress.telephone) ? `<li style="padding: 8px 0;"><strong>Teléfono:</strong> ${shippingAddress.telephone}</li>` : ''}
+          </ul>
+        </div>
+      `;
+        }
+        else if (order.no_shipping_required) {
+            shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px; text-align: center;">
+          <p style="color: #666; margin: 0;">📍 Este pedido no requiere envío físico</p>
+        </div>
+      `;
+        }
+        template = template.replace('{{SHIPPING_INFO}}', shippingInfoHtml);
         // Obtener el servicio de email
         const emailService = await getValue('emailService', {});
         const fromEmail = getConfig('system.notification_emails.from', 'noreply@tienda.com');
-        console.log('📧 Email service available:', !!emailService?.sendEmail);
+        console.log('📧 Email service available:', !!(emailService === null || emailService === void 0 ? void 0 : emailService.sendEmail));
         console.log('📧 Customer email:', customerEmail);
         console.log('📧 From email:', fromEmail);
         if (emailService && emailService.sendEmail && customerEmail) {
@@ -192,15 +256,17 @@ export default async function sendOrderConfirmation(eventData) {
                 body: template
             });
             console.log(`✅ Custom order confirmation email sent to ${customerEmail}`, result);
-        } else {
+        }
+        else {
             console.error('❌ Email service not available or customer email missing');
             console.error('   emailService:', !!emailService);
-            console.error('   sendEmail:', !!emailService?.sendEmail);
+            console.error('   sendEmail:', !!(emailService === null || emailService === void 0 ? void 0 : emailService.sendEmail));
             console.error('   customerEmail:', customerEmail);
         }
-    } catch (err) {
+    }
+    catch (err) {
         console.error(`❌ Error sending custom order confirmation email: ${err.message}`);
         console.error(err.stack);
     }
 }
-
+//# sourceMappingURL=sendOrderConfirmation.js.map

@@ -64,13 +64,15 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
       </table>
     </div>
 
+    {{SHIPPING_INFO}}
+
     <p style="text-align:center; color:#666;">
       Te avisaremos cuando tu pedido haya sido enviado.
     </p>
 
     <div style="margin-top:32px; font-size:13px; color:#888; text-align:center;">
       Si tienes dudas, responde a este correo.<br>
-      &copy; {{year}} Tu Tienda.
+      &copy; {{year}} {{shopName}}.
     </div>
 
   </div>
@@ -97,6 +99,18 @@ export default async function sendOrderConfirmation(eventData) {
     }
     
     console.log('📧 Order found:', order.order_number);
+
+    // Obtener la dirección de envío
+    let shippingAddress = null;
+    if (order.shipping_address_id) {
+      shippingAddress = await select()
+        .from('order_address')
+        .where('order_address_id', '=', order.shipping_address_id)
+        .load(pool);
+      if (shippingAddress) {
+        console.log('📍 Dirección de envío:', JSON.stringify(shippingAddress));
+      }
+    }
 
     // Obtener los items de la orden
     const items = await select()
@@ -160,6 +174,7 @@ export default async function sendOrderConfirmation(eventData) {
     const customerEmail = order.customer_email || '';
 
     const SHOP_URL = process.env.SHOP_URL || 'http://shop.joaobarres.dev';
+    const SHOP_NAME = process.env.SHOP_NAME || 'JB Skylens';
 
     const hasName = !!order.customer_full_name && order.customer_full_name.trim() !== '';
     const welcomeText = hasName
@@ -171,6 +186,7 @@ export default async function sendOrderConfirmation(eventData) {
     template = template.replace(/{{orderId}}/g, order.order_number || '');
     template = template.replace(/{{total}}/g, `$${formatPrice(order.grand_total)}`);
     template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
+    template = template.replace(/{{shopName}}/g, SHOP_NAME);
 
     // Render items con imagen, nombre, descripción, cantidad y precios
     const itemsHtml = items.map(item => {
@@ -224,6 +240,34 @@ export default async function sendOrderConfirmation(eventData) {
     }).join('\n');
     
     template = template.replace('{{ITEMS_HTML}}', itemsHtml || '<tr><td colspan="6">Ver detalles en tu cuenta</td></tr>');
+
+    // Construir HTML de datos de envío
+    let shippingInfoHtml = '';
+    if (shippingAddress || order.shipping_method_name) {
+      shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+          <h3 style="color: #1B4B2E; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            📦 Datos de envío
+          </h3>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            ${order.shipping_method_name ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Método de Envío:</strong> ${order.shipping_method_name}</li>` : ''}
+            ${shippingAddress?.country ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>País:</strong> ${shippingAddress.country}</li>` : ''}
+            ${shippingAddress?.province ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Provincia:</strong> ${shippingAddress.province}</li>` : ''}
+            ${shippingAddress?.city ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Ciudad:</strong> ${shippingAddress.city}</li>` : ''}
+            ${shippingAddress?.address_1 ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Dirección:</strong> ${shippingAddress.address_1}${shippingAddress.address_2 ? ', ' + shippingAddress.address_2 : ''}</li>` : ''}
+            ${shippingAddress?.postcode ? `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Código Postal:</strong> ${shippingAddress.postcode}</li>` : ''}
+            ${shippingAddress?.telephone ? `<li style="padding: 8px 0;"><strong>Teléfono:</strong> ${shippingAddress.telephone}</li>` : ''}
+          </ul>
+        </div>
+      `;
+    } else if (order.no_shipping_required) {
+      shippingInfoHtml = `
+        <div style="margin: 24px 0; padding: 20px; background: #f9f9f9; border-radius: 8px; text-align: center;">
+          <p style="color: #666; margin: 0;">📍 Este pedido no requiere envío físico</p>
+        </div>
+      `;
+    }
+    template = template.replace('{{SHIPPING_INFO}}', shippingInfoHtml);
 
     // Obtener el servicio de email
     const emailService = await getValue('emailService', {});
