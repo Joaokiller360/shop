@@ -13,57 +13,66 @@ const EMAIL_TEMPLATE = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <title>Confirmación de Pedido</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; color: #222; margin: 0; padding: 0; }
-    .container { background: #fff; padding: 32px; margin: 24px auto; border-radius: 8px; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    h1 { color: #2d7aee; }
-    h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    .order-details { margin: 24px 0; }
-    .footer { margin-top: 32px; font-size: 13px; color: #888; text-align: center; }
-    .products-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .products-table th { background: #2d7aee; color: #fff; padding: 12px; text-align: left; }
-    .products-table td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-    .products-table tr:hover { background: #f9f9f9; }
-    .total-row { background: #f5f5f5; font-weight: bold; }
-    .total-row td { padding: 16px 12px; }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>¡Gracias por tu compra, {{customerName}}!</h1>
-    <p>Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+<body style="font-family: Arial, sans-serif; background:#f7f7f7; color:#222; margin:0; padding:0;">
+<div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+  <!-- Header centrado -->
+  <div style="text-align:center; padding:30px 0;">
+    <img src="https://res.cloudinary.com/dzlavqhid/image/upload/v1768936317/logo.png"
+         width="100"
+         height="100"
+         style="display:block; margin:0 auto; border-radius:50%;" />
     
-    <div class="order-details">
-      <h2>Productos del pedido</h2>
-      <table class="products-table">
+    <h1 style="color:#1B4B2E; margin-top:15px;">
+      ¡Gracias por tu compra, <br/>{{customerName}}!
+    </h1>
+  </div>
+  </div>
+
+  <!-- Contenedor -->
+  <div style="background:#fff; padding:32px; margin:24px auto; border-radius:8px; max-width:600px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+
+    <p style="color:#1B4B2E; margin-top:15px;">Hemos recibido tu pedido <strong>#{{orderId}}</strong> y lo estamos procesando.</p>
+
+    <div style="margin:24px 0;">
+      <h2 style="color:#333; border-bottom:2px solid #eee; padding-bottom:10px;">
+        Productos del pedido
+      </h2>
+
+      <table style="width:100%; border-collapse:collapse; margin:20px 0;">
         <thead>
           <tr>
-            <th>Imagen</th>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio</th>
-            <th>Impuesto</th>
-            <th>Total</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Imagen</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Producto</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Cantidad</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Precio</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Impuesto</th>
+            <th style="background:#1B4B2E; color:#fff; padding:12px; text-align:left;">Total</th>
           </tr>
         </thead>
+
         <tbody>
           {{ITEMS_HTML}}
         </tbody>
+
         <tfoot>
-          <tr class="total-row">
-            <td colspan="5" style="text-align: right;">Total:</td>
-            <td>{{total}}</td>
+          <tr style="background:#f5f5f5; font-weight:bold;">
+            <td colspan="5" style="padding:16px 12px; text-align:right;">Total:</td>
+            <td style="padding:16px 12px;">{{total}}</td>
           </tr>
         </tfoot>
       </table>
     </div>
-    
-    <p style="text-align: center; color: #666;">Te avisaremos cuando tu pedido haya sido enviado.</p>
-    
-    <div class="footer">
+
+    <p style="text-align:center; color:#666;">
+      Te avisaremos cuando tu pedido haya sido enviado.
+    </p>
+
+    <div style="margin-top:32px; font-size:13px; color:#888; text-align:center;">
       Si tienes dudas, responde a este correo.<br>
       &copy; {{year}} Tu Tienda.
     </div>
+
   </div>
 </body>
 </html>`;
