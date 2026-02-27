@@ -115,6 +115,8 @@ export default async function sendOrderConfirmation(eventData) {
     const grandTotal = formatPrice(order.grand_total);
     const customerEmail = order.customer_email || '';
 
+    const SHOP_URL = process.env.SHOP_URL || 'http://shop.joaobarres.dev';
+
     template = template.replace(/{{customerName}}/g, customerName);
     template = template.replace(/{{orderId}}/g, orderNumber);
     template = template.replace(/{{total}}/g, `$${grandTotal}`);
@@ -122,21 +124,20 @@ export default async function sendOrderConfirmation(eventData) {
 
     // Render items con imagen, nombre, descripción, cantidad y precios
     const itemsHtml = items.map(item => {
-      // Construir URL de la imagen
+      // Construir URL de la imagen usando el endpoint /images de Next.js
       let thumbnail = `${baseUrl}/placeholder.png`; // Imagen por defecto
       if (item.product_thumbnail) {
         if (item.product_thumbnail.startsWith('http')) {
           thumbnail = item.product_thumbnail;
         } else {
-          // Asegurar que la ruta comience con /assets si no lo tiene
+          // Construir la ruta de la imagen
           let imagePath = item.product_thumbnail;
           if (!imagePath.startsWith('/')) {
             imagePath = '/' + imagePath;
           }
-          if (!imagePath.startsWith('/assets')) {
-            imagePath = '/assets' + imagePath;
-          }
-          thumbnail = `${baseUrl}${imagePath}`;
+          // Usar el endpoint /images con el parámetro src codificado
+          const encodedPath = encodeURIComponent(`/assets${imagePath}`);
+          thumbnail = `${baseUrl}/images?src=${encodedPath}&w=80&q=75`;
         }
       }
       

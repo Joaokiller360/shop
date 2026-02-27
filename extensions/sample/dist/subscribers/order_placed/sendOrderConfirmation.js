@@ -1,8 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import { getValue } from '@evershop/evershop/lib/util/registry';
 import { getConfig } from '@evershop/evershop/lib/util/getConfig';
-import { debug, error } from '@evershop/evershop/lib/log';
 import { pool } from '@evershop/evershop/lib/postgres';
 import { select } from '@evershop/postgres-query-builder';
 import { getBaseUrl } from '@evershop/evershop/lib/util/getBaseUrl';
@@ -73,27 +70,21 @@ export default async function sendOrderConfirmation(eventData) {
         const orderId = eventData.order_id;
         console.log('📧 Processing order_id:', orderId);
         // Obtener la orden completa de la base de datos
-        const order = await select()
-            .from('order')
-            .where('order_id', '=', orderId)
-            .load(pool);
+        const order = await select().from('order').where('order_id', '=', orderId).load(pool);
         if (!order) {
             console.error('❌ Order not found:', orderId);
             return;
         }
         console.log('📧 Order found:', order.order_number);
         // Obtener los items de la orden
-        const items = await select()
-            .from('order_item')
-            .where('order_item_order_id', '=', orderId)
-            .execute(pool);
+        const items = await select().from('order_item').where('order_item_order_id', '=', orderId).execute(pool);
         console.log('📧 Items found:', items.length);
         // Obtener la URL base para las imágenes
         const baseUrl = getBaseUrl();
         // Usar plantilla embebida
         let template = EMAIL_TEMPLATE;
         // Función para formatear precios con 2 decimales
-        const formatPrice = (price) => {
+        const formatPrice = (price)=>{
             const num = parseFloat(price) || 0;
             return num.toFixed(2);
         };
@@ -102,23 +93,31 @@ export default async function sendOrderConfirmation(eventData) {
         const orderNumber = order.order_number || '';
         const grandTotal = formatPrice(order.grand_total);
         const customerEmail = order.customer_email || '';
+        const SHOP_URL = process.env.SHOP_URL || 'http://shop.joaobarres.dev';
         template = template.replace(/{{customerName}}/g, customerName);
         template = template.replace(/{{orderId}}/g, orderNumber);
         template = template.replace(/{{total}}/g, `$${grandTotal}`);
         template = template.replace(/{{year}}/g, new Date().getFullYear().toString());
         // Render items con imagen, nombre, descripción, cantidad y precios
-        const itemsHtml = items.map(item => {
-            // Construir URL de la imagen
-            let thumbnail = 'https://via.placeholder.com/80x80?text=Producto';
+        const itemsHtml = items.map((item)=>{
+            // Construir URL de la imagen usando el endpoint /images de Next.js
+            let thumbnail = `${baseUrl}/placeholder.png`; // Imagen por defecto
             if (item.product_thumbnail) {
-                thumbnail = item.product_thumbnail.startsWith('http')
-                    ? item.product_thumbnail
-                    : `${baseUrl}${item.product_thumbnail}`;
+                if (item.product_thumbnail.startsWith('http')) {
+                    thumbnail = item.product_thumbnail;
+                } else {
+                    // Construir la ruta de la imagen
+                    let imagePath = item.product_thumbnail;
+                    if (!imagePath.startsWith('/')) {
+                        imagePath = '/' + imagePath;
+                    }
+                    // Usar el endpoint /images con el parámetro src codificado
+                    const encodedPath = encodeURIComponent(`/assets${imagePath}`);
+                    thumbnail = `${baseUrl}/images?src=${encodedPath}&w=80&q=75`;
+                }
             }
             const name = item.product_name || 'Producto';
-            const description = item.product_custom_options
-                ? JSON.parse(item.product_custom_options).map(opt => `${opt.option_name}: ${opt.value_text}`).join(', ')
-                : '';
+            const description = item.product_custom_options ? JSON.parse(item.product_custom_options).map((opt)=>`${opt.option_name}: ${opt.value_text}`).join(', ') : '';
             const quantity = item.qty || 1;
             // Precios (formateados con 2 decimales)
             const priceInclTax = formatPrice(item.final_price_incl_tax || item.final_price || 0);
@@ -140,7 +139,7 @@ export default async function sendOrderConfirmation(eventData) {
         // Obtener el servicio de email
         const emailService = await getValue('emailService', {});
         const fromEmail = getConfig('system.notification_emails.from', 'noreply@tienda.com');
-        console.log('📧 Email service available:', !!(emailService === null || emailService === void 0 ? void 0 : emailService.sendEmail));
+        console.log('📧 Email service available:', !!emailService?.sendEmail);
         console.log('📧 Customer email:', customerEmail);
         console.log('📧 From email:', fromEmail);
         if (emailService && emailService.sendEmail && customerEmail) {
@@ -151,17 +150,15 @@ export default async function sendOrderConfirmation(eventData) {
                 body: template
             });
             console.log(`✅ Custom order confirmation email sent to ${customerEmail}`, result);
-        }
-        else {
+        } else {
             console.error('❌ Email service not available or customer email missing');
             console.error('   emailService:', !!emailService);
-            console.error('   sendEmail:', !!(emailService === null || emailService === void 0 ? void 0 : emailService.sendEmail));
+            console.error('   sendEmail:', !!emailService?.sendEmail);
             console.error('   customerEmail:', customerEmail);
         }
-    }
-    catch (err) {
+    } catch (err) {
         console.error(`❌ Error sending custom order confirmation email: ${err.message}`);
         console.error(err.stack);
     }
 }
-//# sourceMappingURL=sendOrderConfirmation.js.map
+
