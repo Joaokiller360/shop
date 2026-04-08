@@ -14,3 +14,4 @@ Number Order, Numero de orden
 Close, Cerrar
 Shipped, Enviado
 Delivered,Entregado
+Inclusive of tax ${totalTaxAmount}, Impuestos incluidos $%totalTaxAmount%

@@ -56,7 +56,7 @@ export default function ShoppingCart({ checkoutUrl }: ShoppingCartProps) {
                   title={_('CHECKOUT')}
                   variant="default"
                   size={'lg'}
-                  className={'w-full'}
+                  className={'w-full cursor-pointer'}
                 >
                   {_('CHECKOUT')}
                 </Button>

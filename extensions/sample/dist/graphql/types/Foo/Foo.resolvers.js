@@ -17,23 +17,22 @@ const fooList = [
 ];
 export default {
     Query: {
-        foo: (root, { id }) => {
-            return fooList.find((foo) => foo.id === id);
+        foo: (root, { id })=>{
+            return fooList.find((foo)=>foo.id === id);
         },
-        foos: () => {
+        foos: ()=>{
             return fooList;
         }
     },
     Foo: {
-        id: (foo) => {
+        id: (foo)=>{
             return foo.id;
         },
-        name: (foo) => {
+        name: (foo)=>{
             return foo.name;
         },
-        description: (foo) => {
+        description: (foo)=>{
             return foo.description;
         }
     }
 };
-//# sourceMappingURL=Foo.resolvers.js.map

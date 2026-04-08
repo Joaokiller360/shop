@@ -36,8 +36,9 @@ Ship to, Enviar a
 Shipment, Envío
 Thank you, ¡Gracias!
 Contact information, Información de contacto
-Order #$orderNumber, Pedido #$orderNumber
+Order #{orderNumber}, Pedido #%orderNumber%
 ADD TO CART, AÑADIR AL CARRITO
+Product Description, Descripción del Producto
 Please select variant options, Por favor selecciona opciones de variante
 VIEW CART ($count), VER CARRITO ($count)
 JUST ADDED TO YOUR CART, ACABA DE AÑADIR A SU CARRITO
@@ -51,7 +52,7 @@ Address, Dirección
 City, Ciudad
 Country, País
 Postcode, Código postal
-Inclusive of tax, Impuestos incluidos
+Inclusive of tax ${totalTaxAmount}, Impuestos incluidos $%totalTaxAmount%
 Sorry, there is no available method for your address, Lo sentimos, no hay un método disponible para su dirección
 Full name is required, Se requiere el nombre completo
 Telephone is required, Se requiere el teléfono
@@ -80,3 +81,6 @@ Order Placed, Orden Procesada
 No shipping required, No se requiere envío
 Inclusive of tax, Impuestos incluidos
 Select a payment method, Seleccione un método de pago
+Coupon code is required, Se requiere código promocional
+Discount ({coupon}), Descuento (%coupon%)
+Failed to apply coupon, No se ha podido aplicar el cupón.

@@ -12,8 +12,6 @@
     "theme:active": "evershop theme:active",
     "theme:twizz": "evershop theme:twizz",
     "theme:delete": "evershop theme:delete",
-
-
     "build": "evershop build --skip-minify",
     "start": "evershop start",
     "user:create": "evershop user:create",

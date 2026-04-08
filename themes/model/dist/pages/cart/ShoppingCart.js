@@ -55,7 +55,7 @@ export default function ShoppingCart({ checkoutUrl }) {
         title: _('CHECKOUT'),
         variant: "default",
         size: 'lg',
-        className: 'w-full'
+        className: 'w-full cursor-pointer'
     }, _('CHECKOUT'))), /*#__PURE__*/ React.createElement(Area, {
         id: "shoppingCartAfterSummary",
         noOuter: true

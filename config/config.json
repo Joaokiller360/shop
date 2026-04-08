@@ -1,4 +1,9 @@
 {
+  "shop": {
+    "language": "es",
+    "currency": "USD",
+    "trustProxy": true
+  },
   "system": {
     "notification_emails": {
       "from": "JB Skylens <onboarding@resend.dev>",
