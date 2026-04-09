@@ -55,7 +55,7 @@ export const ResetPasswordForm = ({ title, subtitle, action, className, onSucces
     }), /*#__PURE__*/ React.createElement("div", {
         className: "reset__password__form__submit__button flex border-t border-divider mt-2 pt-4 justify-center"
     }, /*#__PURE__*/ React.createElement(Button, {
-        className: 'cursor-pointer',
+        className: 'cursor-pointer w-full',
         type: "submit",
         variant: 'default',
         onClick: ()=>{
@@ -67,4 +67,3 @@ export const ResetPasswordForm = ({ title, subtitle, action, className, onSucces
         isLoading: loading
     }, _('Reset Password')))))));
 };
-

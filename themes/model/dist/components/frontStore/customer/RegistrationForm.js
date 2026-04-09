@@ -1,12 +1,12 @@
-import Area from '@components/common/Area.js';
+import { EmailField } from '@components/common/form/EmailField.js';
 import { Form, useFormContext } from '@components/common/form/Form.js';
 import { InputField } from '@components/common/form/InputField.js';
 import { PasswordField } from '@components/common/form/PasswordField.js';
+import { Area } from '@components/common/index.js';
 import { Button } from '@components/common/ui/Button.js';
 import { useCustomerDispatch } from '@components/frontStore/customer/CustomerContext.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
-import { cn } from '@evershop/evershop/lib/util/cn';
-import { LockKeyhole, Mail } from 'lucide-react';
+import { LockKeyhole, Mail, User } from 'lucide-react';
 import React from 'react';
 const SubmitButton = ({ formId })=>{
     const { formState: { isSubmitting } } = useFormContext();
@@ -22,66 +22,59 @@ const SubmitButton = ({ formId })=>{
             }));
         },
         isLoading: isSubmitting
-    }, _(isSubmitting ? 'Iniciando Sesión...' : 'Iniciar Sesión')));
+    }, _(isSubmitting ? 'Signing Up...' : 'Sign Up')));
 };
-export const CustomerLoginForm = ({ title, subtitle, redirectUrl, onError, className })=>{
-    const { login } = useCustomerDispatch();
+export const CustomerRegistrationForm = ({ title, subtitle, redirectUrl, onError, className })=>{
+    const { register } = useCustomerDispatch();
     return /*#__PURE__*/ React.createElement("div", {
-        className: cn(`login__form`, className)
+        className: `register__form ${className}`
     }, /*#__PURE__*/ React.createElement("div", {
-        className: "items-center justify-center flex flex-col pb-5"
-    }, /*#__PURE__*/ React.createElement("img", {
-        width: "100",
-        height: "100",
-        className: "rounded-full items-center",
-        src: "https://res.cloudinary.com/dzlavqhid/image/upload/v1768936317/logo.png"
-    })), /*#__PURE__*/ React.createElement("div", {
-        className: "login__form__inner w-full"
+        className: "register__form__inner w-full"
     }, /*#__PURE__*/ React.createElement(Area, {
-        id: "customerLoginFormTitleBefore",
+        id: "customerRegisterFormTitleBefore",
         noOuter: true
     }), title && /*#__PURE__*/ React.createElement("h1", {
-        className: "login__form__title text-2xl text-center mb-6"
-    }, _(title)), subtitle && /*#__PURE__*/ React.createElement("p", {
-        className: "login__form__subtitle text-center text-md mb-6"
-    }, _(subtitle)), /*#__PURE__*/ React.createElement(Area, {
-        id: "customerLoginFormTitleAfter",
+        className: "register__form__title text-2xl text-center mb-6"
+    }, _(title)), /*#__PURE__*/ React.createElement(Area, {
+        id: "customerRegisterFormTitleAfter",
         noOuter: true
-    }), /*#__PURE__*/ React.createElement(Area, {
-        id: "customerLoginFormBefore",
+    }), subtitle && /*#__PURE__*/ React.createElement("p", {
+        className: "register__form__subtitle text-center mb-6"
+    }, _(subtitle)), /*#__PURE__*/ React.createElement(Area, {
+        id: "customerRegisterFormBefore",
         noOuter: true
     }), /*#__PURE__*/ React.createElement(Form, {
-        id: "loginForm",
+        id: "registerForm",
         method: "POST",
         onSubmit: async (data)=>{
             try {
-                await login({
+                await register({
+                    full_name: data.full_name,
                     email: data.email,
                     password: data.password,
                     ...data
-                }, redirectUrl);
+                }, true, redirectUrl);
             } catch (error) {
-                onError?.(error);
+                onError?.(error.message);
             }
         },
-        onError: onError,
         submitBtn: false
     }, /*#__PURE__*/ React.createElement(Area, {
-        id: "customerLoginForm",
+        id: "customerRegisterForm",
         className: "space-y-3",
         coreComponents: [
             {
                 component: {
                     default: /*#__PURE__*/ React.createElement(InputField, {
-                        prefixIcon: /*#__PURE__*/ React.createElement(Mail, {
+                        prefixIcon: /*#__PURE__*/ React.createElement(User, {
                             className: "h-5 w-5"
                         }),
-                        label: _('Email'),
-                        name: "email",
-                        placeholder: _('Email'),
+                        name: "full_name",
+                        label: _('Full Name'),
+                        placeholder: _('Full Name'),
                         required: true,
                         validation: {
-                            required: _('Correo electrónico es requerido')
+                            required: _('Full Name is required')
                         }
                     })
                 },
@@ -89,33 +82,50 @@ export const CustomerLoginForm = ({ title, subtitle, redirectUrl, onError, class
             },
             {
                 component: {
-                    default: /*#__PURE__*/ React.createElement(PasswordField, {
-                        prefixIcon: /*#__PURE__*/ React.createElement(LockKeyhole, {
+                    default: /*#__PURE__*/ React.createElement(EmailField, {
+                        prefixIcon: /*#__PURE__*/ React.createElement(Mail, {
                             className: "h-5 w-5"
                         }),
-                        label: _('Password'),
-                        name: "password",
-                        placeholder: _('Password'),
+                        name: "email",
+                        label: _('Email'),
+                        placeholder: _('Email'),
                         required: true,
                         validation: {
-                            required: _('Contraseña es requerida')
-                        },
-                        showToggle: true
+                            required: _('Email is required')
+                        }
                     })
                 },
                 sortOrder: 20
             },
             {
                 component: {
+                    default: /*#__PURE__*/ React.createElement(PasswordField, {
+                        prefixIcon: /*#__PURE__*/ React.createElement(LockKeyhole, {
+                            className: "h-5 w-5"
+                        }),
+                        name: "password",
+                        label: _('Password'),
+                        placeholder: _('Password'),
+                        required: true,
+                        showToggle: true,
+                        validation: {
+                            required: _('Password is required')
+                        }
+                    })
+                },
+                sortOrder: 30
+            },
+            {
+                component: {
                     default: /*#__PURE__*/ React.createElement(SubmitButton, {
-                        formId: "loginForm"
+                        formId: "registerForm"
                     })
                 },
                 sortOrder: 30
             }
         ]
     })), /*#__PURE__*/ React.createElement(Area, {
-        id: "customerLoginFormAfter",
+        id: "customerRegisterFormAfter",
         noOuter: true
     })));
 };

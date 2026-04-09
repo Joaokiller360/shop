@@ -28,7 +28,7 @@ export default function RegisterPage({ homeUrl, loginUrl }: RegisterPageProps) {
       <div className="text-center">
         <span>
           {_('Already have an account?')}
-          <a className="text-green-500 hover:underline" href={loginUrl}>
+          <a className="text-red hover:underline" href={loginUrl}>
             {' '}
             {_('Login')}{' '}
           </a>

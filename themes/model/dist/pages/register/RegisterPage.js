@@ -21,7 +21,7 @@ export default function RegisterPage({ homeUrl, loginUrl }) {
     }))), /*#__PURE__*/ React.createElement("div", {
         className: "text-center"
     }, /*#__PURE__*/ React.createElement("span", null, _('Already have an account?'), /*#__PURE__*/ React.createElement("a", {
-        className: "text-green-500 hover:underline",
+        className: "text-red hover:underline",
         href: loginUrl
     }, ' ', _('Login'), ' '))));
 }
@@ -35,3 +35,4 @@ export const query = `
     loginUrl: url(routeId: "login")
   }
 `;
+
