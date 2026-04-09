@@ -22,4 +22,3 @@ export function Header() {
         className: "header__bottom"
     }));
 }
-
