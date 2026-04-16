@@ -46,6 +46,15 @@ export default function ProductView({ product }: ProductData) {
                   component: { default: <ProductSingleForm /> },
                   sortOrder: 30,
                   id: 'productForm'
+                },
+                {
+                  component: {
+                    default: (
+                      <div className='text-center'>prueba</div>
+                    )
+                  },
+                  sortOrder: 40,
+                  id: 'attributes'
                 }
               ]}
             />

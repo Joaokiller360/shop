@@ -10,7 +10,7 @@ export function Header() {
         className: "header__middle grid grid-cols-3"
     }, /*#__PURE__*/ React.createElement(Area, {
         id: "headerMiddleLeft",
-        className: "header__middle__left flex justify-start items-center"
+        className: "header__middle__left flex justify-start items-center cursor-pointer"
     }), /*#__PURE__*/ React.createElement(Area, {
         id: "headerMiddleCenter",
         className: "header__middle__center flex justify-center items-center"

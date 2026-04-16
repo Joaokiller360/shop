@@ -35,4 +35,3 @@ export const query = `
     loginUrl: url(routeId: "login")
   }
 `;
-

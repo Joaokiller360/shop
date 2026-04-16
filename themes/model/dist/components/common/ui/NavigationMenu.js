@@ -73,3 +73,4 @@ function NavigationMenuIndicator({ className, ...props }) {
     }));
 }
 export { NavigationMenu, NavigationMenuContent, NavigationMenuIndicator, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle, NavigationMenuPositioner };
+

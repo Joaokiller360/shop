@@ -54,6 +54,15 @@ export default function ProductView({ product }) {
                 },
                 sortOrder: 30,
                 id: 'productForm'
+            },
+            {
+                component: {
+                    default: /*#__PURE__*/ React.createElement("div", {
+                        className: "text-center"
+                    }, "prueba")
+                },
+                sortOrder: 40,
+                id: 'attributes'
             }
         ]
     })), /*#__PURE__*/ React.createElement(ProductSingleDescription, null)), /*#__PURE__*/ React.createElement(Area, {

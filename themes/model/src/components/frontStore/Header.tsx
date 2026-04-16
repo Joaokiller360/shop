@@ -9,7 +9,7 @@ export function Header() {
         <div className="header__middle grid grid-cols-3">
           <Area
             id="headerMiddleLeft"
-            className="header__middle__left flex justify-start items-center"
+            className="header__middle__left flex justify-start items-center cursor-pointer"
           />
           <Area
             id="headerMiddleCenter"
